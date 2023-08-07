@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!--Google fonts-->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Roboto:ital,wght@0,100;0,300;0,400;0,500;0,700;0,900;1,100;1,300;1,400;1,500;1,700;1,900&display=swap"
+        rel="stylesheet">
+    <!--Font awesome-->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"
+        integrity="sha512-iecdLmaskl7CVkqkXNQ/ZH/XLlvWZOJyj7Yy7tcenmpD1ypASozpmT/E0iPtmFIB46ZmdtAc9eNBvH0H/ZpiBw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <title>Todo list</title>
+    <link rel="stylesheet" href="./home.css">
+</head>
+
+<body>
+    <button class="logout" onclick="logout()">Sair</button>
+
+    <div class="form-container">
+        <h1>Todo avançado</h1>
+
+        <form id="todo-form">
+            <div class="todo-container">
+                <p>Adicione a sua tarefa</p>
+
+                <div class="form-field">
+                    <input type="text" name="todo-input" id="todo-input" placeholder="O que você vai fazer?">
+
+                    <button type="submit" class="todo-input-btn">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+            </div>
+
+            <div class="edit-container">
+                <p>Edite a sua tarefa</p>
+
+                <div class="form-field">
+                    <input type="text" name="edit-input" id="edit-input">
+
+                    <button id="update-task">
+                        <i class="fa-solid fa-check-double"></i>
+                    </button>
+                </div>
+                <button class="cancel-edit-btn" onclick="hideEdit(event)">Cancelar</button>
+            </div>
+
+            <div class="search-container">
+                <div class="search">
+                    <p>Pesquisar</p>
+
+                    <div class="form-field">
+                        <input type="text" name="search-input" id="search-input" placeholder="Buscar">
+
+                        <button>
+                            <i class="fa-solid fa-delete-left"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="filter">
+                    <p>Filtrar</p>
+                    <div class="form-field">
+                        <select name="filter-input" id="filter-input">
+                            <option value="all">Todos</option>
+                            <option value="done">Feitos</option>
+                            <option value="todo">A fazer</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+        </form>
+
+        <div class="tasks-container">
+            <!-- <div class="task">
+                <h3>Estou fazendo alguma coisa</h3>
+                <button id="done">
+                    <i class="fa-solid fa-check"></i>
+                </button>
+                <button id="edit">
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+                <button id="remove">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+    
+            <div class="task done">
+                <h3>Aprendendo Javascript</h3>
+                <button>
+                    <i class="fa-solid fa-check"></i>
+                </button>
+                <button>
+                    <i class="fa-solid fa-pen"></i>
+                </button>
+                <button>
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div> -->
+        </div>
+    </div>
+
+
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-auth.js"></script>
+    <script src="../../firebase-initi.js"></script>
+
+    <script src="./home.js"></script>
+</body>
+
+</html>
