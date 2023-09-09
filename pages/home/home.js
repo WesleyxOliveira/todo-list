@@ -8,11 +8,11 @@ let editInput = document.querySelector('#edit-input');
 let updateTask = document.querySelector('#update-task');
 let currentTask;
 
-// auth.onAuthStateChanged((user) => {
-//     if(user) {
-//         findTasks(user);
-//     }
-// })
+auth.onAuthStateChanged((user) => {
+    if(user) {
+        findTasks(user);
+    }
+})
 
 function findTasks(user) {
     db.collection('tasks').doc(user.uid).get()
