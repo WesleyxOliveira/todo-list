@@ -15,17 +15,17 @@ auth.onAuthStateChanged((user) => {
 })
 
 function findTasks(user) {
-    db.collection('tasks').doc(user.uid).get()
-    .then(snapshot => {
-        const arrTasks = snapshot.data().arr
+    db.collection('tasks').doc(user.uid).get().then((snapshot) => {
+        let arr = snapshot.data().arr;
 
-        arrTasks.forEach(element => {   
-            saveTodo(element);
+        arr.forEach(element => {
+            loadingTasks(element);
         });
     })
-    .catch(error => {
-        console.log(error.message);
-    })
+}
+
+function loadingTasks(user, element) {
+    
 }
 
 function logout() {
