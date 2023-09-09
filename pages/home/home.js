@@ -8,11 +8,43 @@ let editInput = document.querySelector('#edit-input');
 let updateTask = document.querySelector('#update-task');
 let currentTask;
 
+auth.onAuthStateChanged((user) => {
+    if(user) {
+        findTasks(user);
+    }
+})
+
+function findTasks(user) { 
+    db.collection('tasks').doc(user.uid).get()
+        .then((doc) => {
+            let arrTasks = doc.data().taskTitle;
+            
+            arrTasks.forEach(taskDescription => {
+                saveTodo(taskDescription);
+            });
+        })
+        .catch((error) => {
+            console.log(error);
+        })
+}
+
 function logout() {
+    firebase.auth().signOut();
     window.location.href = '../../index.html';
 }
 
 function saveTodo(inputValue) {
+    let user = auth.currentUser.uid;
+
+    db.collection('tasks').doc(user).set({
+        taskTitle: firebase.firestore.FieldValue.arrayUnion(inputValue),
+    }, {merge: true}
+    ).then(() => {
+        //resolvido
+    }).catch(error => {
+        console.log(error);
+    })
+
     const task = document.createElement('div');
     task.classList.add('task');
 
@@ -62,7 +94,7 @@ document.addEventListener('click', (e) => {
         parentEl.classList.toggle('done');
     }
 
-    if(targetEl.id == 'remove') {
+    if (targetEl.id == 'remove') {
         parentEl.remove();
     }
 
@@ -99,4 +131,8 @@ function hideEdit(e) {
 
     editContainer.style.display = 'none';
     todoContainer.style.display = 'block';
+}
+
+{
+    arr: [{taskTitle: "", status: ""}, {taskTitle: ""}, status: ""]
 }

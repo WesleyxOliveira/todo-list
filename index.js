@@ -17,7 +17,7 @@
 
 auth.onAuthStateChanged((user) => {
     if(user) {
-        window.location.href = '../pages/home/home.html';
+        window.location.href = './pages/home/home.html';
     }
 })
 
@@ -62,18 +62,24 @@ function login(e) {
 
     showLoading();
 
-    auth.setPersistence(firebase.auth.Auth.Persistence.NONE).then(() => {
-        auth.signInWithEmailAndPassword(userMail, userPassword).then((user) => {    
-            window.location.href = './pages/home/home.html';
-        }).catch(error => {
-            hideLoading();
+    auth.signInWithEmailAndPassword(userMail, userPassword).then((userCredential) => {    
+        let user = userCredential.user;
 
-            alert(handleLoginError(error));
-        })
-    }).catch((error) => {
+        localStorage.setItem('userToken', user.accessToken);
+
+        window.location.href = './pages/home/home.html';
+    }).catch(error => {
         hideLoading();
-        console.log(error);
+
+        alert(handleLoginError(error));
     })
+
+    // auth.setPersistence(firebase.auth.Auth.Persistence.NONE).then(() => {
+        
+    // }).catch((error) => {
+    //     hideLoading();
+    //     console.log(error);
+    // })
 } 
 
 function handleLoginError(error) {
