@@ -7,7 +7,6 @@ let editContainer = document.querySelector('.edit-container');
 let editInput = document.querySelector('#edit-input');
 let updateTask = document.querySelector('#update-task');
 let currentTask;
-let elementStatus  = null;
 
 auth.onAuthStateChanged((user) => {
     if(user) {
@@ -15,32 +14,26 @@ auth.onAuthStateChanged((user) => {
     }
 })
 
-function findTasks(user) { 
-    // db.collection('tasks').doc(user.uid).get()
-    //     .then((doc) => {
-    //         let arrTasks = doc.data().taskTitle;
-            
-    //         arrTasks.forEach(taskDescription => {
-    //             saveTodo(taskDescription);
-    //         });
-    //     })
-    //     .catch((error) => {
-    //         console.log(error);
-    //     })
+function checkStatus(element) {
+   let status = element.status;
 
+   console.log(status);
+}
+
+function findTasks(user) {
     db.collection('tasks').doc(user.uid).get()
     .then(snapshot => {
         const arrTasks = snapshot.data().arr
 
         arrTasks.forEach(element => {
-            elementStatus = element.status;
-            let taskTitle = element.taskTitle;
-            
+            checkStatus(element);
+
+            let taskTitle = element.taskTitle;            
             saveTodo(taskTitle);
         });
     })
     .catch(error => {
-        console.log(error.messa);
+        console.log(error.message);
     })
 }
 
@@ -102,12 +95,10 @@ todoForm.addEventListener('submit', (e) => {
 });
 
 document.addEventListener('click', (e) => {
+
     const targetEl = e.target;
     const parentEl = targetEl.closest('div');
     let taskTitle;
-
-    console.log(elementStatus)
-
 
     if (targetEl.id == 'done') {
         parentEl.classList.toggle('done');
