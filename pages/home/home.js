@@ -7,6 +7,7 @@ let editContainer = document.querySelector('.edit-container');
 let editInput = document.querySelector('#edit-input');
 let updateTask = document.querySelector('#update-task');
 let currentTask;
+let elementStatus  = null;
 
 auth.onAuthStateChanged((user) => {
     if(user) {
@@ -15,17 +16,32 @@ auth.onAuthStateChanged((user) => {
 })
 
 function findTasks(user) { 
-    db.collection('tasks').doc(user.uid).get()
-        .then((doc) => {
-            let arrTasks = doc.data().taskTitle;
+    // db.collection('tasks').doc(user.uid).get()
+    //     .then((doc) => {
+    //         let arrTasks = doc.data().taskTitle;
             
-            arrTasks.forEach(taskDescription => {
-                saveTodo(taskDescription);
-            });
-        })
-        .catch((error) => {
-            console.log(error);
-        })
+    //         arrTasks.forEach(taskDescription => {
+    //             saveTodo(taskDescription);
+    //         });
+    //     })
+    //     .catch((error) => {
+    //         console.log(error);
+    //     })
+
+    db.collection('tasks').doc(user.uid).get()
+    .then(snapshot => {
+        const arrTasks = snapshot.data().arr
+
+        arrTasks.forEach(element => {
+            elementStatus = element.status;
+            let taskTitle = element.taskTitle;
+            
+            saveTodo(taskTitle);
+        });
+    })
+    .catch(error => {
+        console.log(error.messa);
+    })
 }
 
 function logout() {
@@ -90,6 +106,9 @@ document.addEventListener('click', (e) => {
     const parentEl = targetEl.closest('div');
     let taskTitle;
 
+    console.log(elementStatus)
+
+
     if (targetEl.id == 'done') {
         parentEl.classList.toggle('done');
     }
@@ -131,8 +150,4 @@ function hideEdit(e) {
 
     editContainer.style.display = 'none';
     todoContainer.style.display = 'block';
-}
-
-{
-    arr: [{taskTitle: "", status: ""}, {taskTitle: ""}, status: ""]
 }
