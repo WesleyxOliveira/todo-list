@@ -8,28 +8,19 @@ let editInput = document.querySelector('#edit-input');
 let updateTask = document.querySelector('#update-task');
 let currentTask;
 
-auth.onAuthStateChanged((user) => {
-    if(user) {
-        findTasks(user);
-    }
-})
-
-function checkStatus(element) {
-   let status = element.status;
-
-   console.log(status);
-}
+// auth.onAuthStateChanged((user) => {
+//     if(user) {
+//         findTasks(user);
+//     }
+// })
 
 function findTasks(user) {
     db.collection('tasks').doc(user.uid).get()
     .then(snapshot => {
         const arrTasks = snapshot.data().arr
 
-        arrTasks.forEach(element => {
-            checkStatus(element);
-
-            let taskTitle = element.taskTitle;            
-            saveTodo(taskTitle);
+        arrTasks.forEach(element => {   
+            saveTodo(element);
         });
     })
     .catch(error => {
@@ -46,7 +37,7 @@ function saveTodo(inputValue) {
     let user = auth.currentUser.uid;
 
     db.collection('tasks').doc(user).set({
-        taskTitle: firebase.firestore.FieldValue.arrayUnion(inputValue),
+        arr: firebase.firestore.FieldValue.arrayUnion({taskTitle: inputValue, status: ''}),
     }, {merge: true}
     ).then(() => {
         //resolvido
