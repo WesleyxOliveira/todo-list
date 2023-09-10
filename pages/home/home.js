@@ -9,7 +9,7 @@ let updateTask = document.querySelector('#update-task');
 let currentTask;
 
 auth.onAuthStateChanged((user) => {
-    if(user) {
+    if (user) {
         findTasks(user);
     }
 })
@@ -29,11 +29,14 @@ function logout() {
     window.location.href = '../../index.html';
 }
 
-function saveTodo(inputValue) {   
-    if(typeof inputValue == 'object') {
+function saveTodo(inputValue) {
+    let arrTitle = inputValue
+
+    if (typeof inputValue == 'object') {
         inputValue = inputValue.taskTitle
+        console.log(arrTitle);
     }
-    
+
     let user = auth.currentUser.uid;
 
     db.collection('tasks').doc(user).set({
@@ -44,6 +47,8 @@ function saveTodo(inputValue) {
     }).catch(error => {
         console.log(error);
     })
+
+
 
     const task = document.createElement('div');
     task.classList.add('task');
@@ -59,8 +64,8 @@ function saveTodo(inputValue) {
     checkBtn.addEventListener('click', () => {
         let parentEl = checkBtn.closest('div');
 
-        console.log(parentEl);
         parentEl.classList.toggle('done');
+        console.log(randomId)
     })
 
     const editBtn = document.createElement('button');
