@@ -19,13 +19,9 @@ function findTasks(user) {
         let arr = snapshot.data().arr;
 
         arr.forEach(element => {
-            loadingTasks(element);
+            saveTodo(element);
         });
     })
-}
-
-function loadingTasks(user, element) {
-    
 }
 
 function logout() {
@@ -33,7 +29,11 @@ function logout() {
     window.location.href = '../../index.html';
 }
 
-function saveTodo(inputValue) {
+function saveTodo(inputValue) {   
+    if(typeof inputValue == 'object') {
+        inputValue = inputValue.taskTitle
+    }
+    
     let user = auth.currentUser.uid;
 
     db.collection('tasks').doc(user).set({
@@ -56,6 +56,12 @@ function saveTodo(inputValue) {
     checkBtn.id = 'done';
     checkBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
     task.appendChild(checkBtn);
+    checkBtn.addEventListener('click', () => {
+        let parentEl = checkBtn.closest('div');
+
+        console.log(parentEl);
+        parentEl.classList.toggle('done');
+    })
 
     const editBtn = document.createElement('button');
     editBtn.id = 'edit';
@@ -85,47 +91,47 @@ todoForm.addEventListener('submit', (e) => {
     todoInput.focus();
 });
 
-document.addEventListener('click', (e) => {
+// document.addEventListener('click', (e) => {
 
-    const targetEl = e.target;
-    const parentEl = targetEl.closest('div');
-    let taskTitle;
+//     const targetEl = e.target;
+//     const parentEl = targetEl.closest('div');
+//     let taskTitle;
 
-    if (targetEl.id == 'done') {
-        parentEl.classList.toggle('done');
-    }
+//     if (targetEl.id == 'done') {
+//         parentEl.classList.toggle('done');
+//     }
 
-    if (targetEl.id == 'remove') {
-        parentEl.remove();
-    }
+//     if (targetEl.id == 'remove') {
+//         parentEl.remove();
+//     }
 
-    if (targetEl.id == 'edit') {
+//     if (targetEl.id == 'edit') {
 
-        if (parentEl && parentEl.querySelector('h3')) {
-            taskTitle = parentEl.querySelector('h3').innerText;
+//         if (parentEl && parentEl.querySelector('h3')) {
+//             taskTitle = parentEl.querySelector('h3').innerText;
 
-            todoContainer.style.display = 'none';
+//             todoContainer.style.display = 'none';
 
-            editContainer.style.display = 'block';
-            editInput.value = taskTitle;
-            editInput.focus();
-        }
+//             editContainer.style.display = 'block';
+//             editInput.value = taskTitle;
+//             editInput.focus();
+//         }
 
-        currentTask = parentEl;
+//         currentTask = parentEl;
 
-        updateTask.addEventListener('click', (e) => {
-            e.preventDefault();
+//         updateTask.addEventListener('click', (e) => {
+//             e.preventDefault();
 
-            currentTask.querySelector('h3').innerText = editInput.value;
+//             currentTask.querySelector('h3').innerText = editInput.value;
 
-            todoContainer.style.display = 'block';
+//             todoContainer.style.display = 'block';
 
-            editContainer.style.display = 'none';
+//             editContainer.style.display = 'none';
 
-            todoInput.focus();
-        })
-    }
-})
+//             todoInput.focus();
+//         })
+//     }
+// })
 
 function hideEdit(e) {
     e.preventDefault();
