@@ -30,17 +30,17 @@ function logout() {
 }
 
 function saveTodo(inputValue) {
-    let arrTitle = inputValue
+    const user = auth.currentUser.uid;
+    let taskValue = null;
 
-    if (typeof inputValue == 'object') {
-        inputValue = inputValue.taskTitle
-        console.log(arrTitle);
-    }
-
-    let user = auth.currentUser.uid;
+    if(typeof inputValue == 'object') {
+        taskValue = inputValue.taskTitle;
+    } else {
+        taskValue = inputValue;
+    }   
 
     db.collection('tasks').doc(user).set({
-        arr: firebase.firestore.FieldValue.arrayUnion({taskTitle: inputValue, status: ''}),
+        arr: firebase.firestore.FieldValue.arrayUnion({taskTitle: taskValue, status: ''}),
     }, {merge: true}
     ).then(() => {
         //resolvido
@@ -48,24 +48,25 @@ function saveTodo(inputValue) {
         console.log(error);
     })
 
-
-
     const task = document.createElement('div');
     task.classList.add('task');
 
     const todoTitle = document.createElement('h3');
-    todoTitle.innerHTML = inputValue;
+    todoTitle.innerHTML = taskValue;
     task.appendChild(todoTitle);
 
     const checkBtn = document.createElement('button');
     checkBtn.id = 'done';
     checkBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
     task.appendChild(checkBtn);
-    checkBtn.addEventListener('click', () => {
-        let parentEl = checkBtn.closest('div');
+    checkBtn.addEventListener('click', (e) => {
+        let targetEl = e.target;
+        let parentEl = targetEl.closest('div');
 
         parentEl.classList.toggle('done');
-        console.log(randomId)
+
+        //Parei aqui
+        
     })
 
     const editBtn = document.createElement('button');
@@ -96,47 +97,47 @@ todoForm.addEventListener('submit', (e) => {
     todoInput.focus();
 });
 
-// document.addEventListener('click', (e) => {
+document.addEventListener('click', (e) => {
 
-//     const targetEl = e.target;
-//     const parentEl = targetEl.closest('div');
-//     let taskTitle;
+    const targetEl = e.target;
+    const parentEl = targetEl.closest('div');
+    let taskTitle;
 
-//     if (targetEl.id == 'done') {
-//         parentEl.classList.toggle('done');
-//     }
+    // if (targetEl.id == 'done') {
+    //     parentEl.classList.toggle('done');
+    // }
 
-//     if (targetEl.id == 'remove') {
-//         parentEl.remove();
-//     }
+    if (targetEl.id == 'remove') {
+        parentEl.remove();
+    }
 
-//     if (targetEl.id == 'edit') {
+    if (targetEl.id == 'edit') {
 
-//         if (parentEl && parentEl.querySelector('h3')) {
-//             taskTitle = parentEl.querySelector('h3').innerText;
+        if (parentEl && parentEl.querySelector('h3')) {
+            taskTitle = parentEl.querySelector('h3').innerText;
 
-//             todoContainer.style.display = 'none';
+            todoContainer.style.display = 'none';
 
-//             editContainer.style.display = 'block';
-//             editInput.value = taskTitle;
-//             editInput.focus();
-//         }
+            editContainer.style.display = 'block';
+            editInput.value = taskTitle;
+            editInput.focus();
+        }
 
-//         currentTask = parentEl;
+        currentTask = parentEl;
 
-//         updateTask.addEventListener('click', (e) => {
-//             e.preventDefault();
+        updateTask.addEventListener('click', (e) => {
+            e.preventDefault();
 
-//             currentTask.querySelector('h3').innerText = editInput.value;
+            currentTask.querySelector('h3').innerText = editInput.value;
 
-//             todoContainer.style.display = 'block';
+            todoContainer.style.display = 'block';
 
-//             editContainer.style.display = 'none';
+            editContainer.style.display = 'none';
 
-//             todoInput.focus();
-//         })
-//     }
-// })
+            todoInput.focus();
+        })
+    }
+})
 
 function hideEdit(e) {
     e.preventDefault();
