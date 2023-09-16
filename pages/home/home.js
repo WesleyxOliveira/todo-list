@@ -16,6 +16,7 @@ auth.onAuthStateChanged((user) => {
 
 function findTasks(user) {
     db.collection('tasks').doc(user.uid).get().then((snapshot) => {
+
         let arr = snapshot.data().arr;
 
         arr.forEach(element => {
@@ -24,30 +25,39 @@ function findTasks(user) {
     })
 }
 
-function logout() {
-    firebase.auth().signOut();
-    window.location.href = '../../index.html';
-}
-
 function saveTodo(inputValue) {
     const user = auth.currentUser.uid;
     let taskValue = null;
 
-    if(typeof inputValue == 'object') {
+    if (typeof inputValue == 'object') {
         taskValue = inputValue.taskTitle;
     } else {
         taskValue = inputValue;
-    }   
+    }
 
     db.collection('tasks').doc(user).set({
-        arr: firebase.firestore.FieldValue.arrayUnion({taskTitle: taskValue, status: ''}),
-    }, {merge: true}
+        arr: firebase.firestore.FieldValue.arrayUnion({ taskTitle: taskValue, status: '', id: generateRandonId(10) }),
+    }, { merge: true }
     ).then(() => {
-        //resolvido
+        //Success
     }).catch(error => {
-        console.log(error);
+        console.log(error.message);
     })
 
+    createTasks(taskValue);
+}
+
+function generateRandonId(tamanho) {
+    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let id = '';
+    for (let i = 0; i < tamanho; i++) {
+        const indiceAleatorio = Math.floor(Math.random() * caracteres.length);
+        id += caracteres.charAt(indiceAleatorio);
+    }
+    return id;
+}
+
+function createTasks(taskValue) {
     const task = document.createElement('div');
     task.classList.add('task');
 
@@ -62,11 +72,10 @@ function saveTodo(inputValue) {
     checkBtn.addEventListener('click', (e) => {
         let targetEl = e.target;
         let parentEl = targetEl.closest('div');
+        checkStatus(parentEl);
 
-        parentEl.classList.toggle('done');
+        // parentEl.classList.toggle('done');
 
-        //Parei aqui, falta fazer um toggle na proprieda status no firebase  
-        
     })
 
     const editBtn = document.createElement('button');
@@ -138,6 +147,11 @@ document.addEventListener('click', (e) => {
         })
     }
 })
+
+function logout() {
+    firebase.auth().signOut();
+    window.location.href = '../../index.html';
+}
 
 function hideEdit(e) {
     e.preventDefault();
