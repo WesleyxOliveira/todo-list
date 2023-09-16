@@ -65,7 +65,7 @@ function saveTodo(inputValue) {
 
         parentEl.classList.toggle('done');
 
-        //Parei aqui, falta fazer um toggle na proprieda status no firebase
+        //Parei aqui, falta fazer um toggle na proprieda status no firebase  
         
     })
 
