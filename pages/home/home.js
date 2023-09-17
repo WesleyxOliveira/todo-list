@@ -8,24 +8,16 @@ let editInput = document.querySelector('#edit-input');
 let updateTask = document.querySelector('#update-task');
 let allTasksOnScreen = document.querySelectorAll('.task');
 
-
-auth.onAuthStateChanged((user) => {
-    if (user) {
-        getAllTasks();
-    }
-})
-
-// db.collection('tasks').onSnapshot(() => {
+// auth.onAuthStateChanged((user) => {
+//     if (user) {
 //     getAllTasks();
+//     }
 // })
 
+
 function getAllTasks() {
-    let user = auth.currentUser.uid;    
-
-    allTasksOnScreen.forEach((task) => {
-        task.remove();
-    })
-
+    let user = auth.currentUser.uid;     
+    
     db.collection('tasks').doc(user).get()
         .then(doc => {
             let arr = doc.data().arr;
@@ -56,7 +48,7 @@ function saveTasks(inputValue) {
     })
 }
 
-function addTasksToScreen(inputValue) {
+function addTasksToScreen(inputValue, user) {
     let taskValue = null;
 
     if (typeof inputValue == 'object') {
@@ -100,6 +92,8 @@ todoForm.addEventListener('submit', (e) => {
     } else {
         alert('Preencha os campos abaixo e tente novamente');
     }
+
+    getAllTasks();
 
     todoInput.value = '';
     todoInput.focus();
