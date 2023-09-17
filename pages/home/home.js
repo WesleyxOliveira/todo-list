@@ -6,26 +6,37 @@ let todoContainer = document.querySelector('.todo-container');
 let editContainer = document.querySelector('.edit-container');
 let editInput = document.querySelector('#edit-input');
 let updateTask = document.querySelector('#update-task');
-let currentTask;
+let allTasksOnScreen = document.querySelectorAll('.task');
+
 
 auth.onAuthStateChanged((user) => {
     if (user) {
-        findTasks(user);
+        getAllTasks();
     }
 })
 
-function findTasks(user) {
-    db.collection('tasks').doc(user.uid).get().then((snapshot) => {
+// db.collection('tasks').onSnapshot(() => {
+//     getAllTasks();
+// })
 
-        let arr = snapshot.data().arr;
+function getAllTasks() {
+    let user = auth.currentUser.uid;    
 
-        arr.forEach(element => {
-            saveTodo(element);
-        });
+    allTasksOnScreen.forEach((task) => {
+        task.remove();
     })
+
+    db.collection('tasks').doc(user).get()
+        .then(doc => {
+            let arr = doc.data().arr;
+
+            arr.forEach(element => {
+                addTasksToScreen(element, user);
+            });
+        })
 }
 
-function saveTodo(inputValue) {
+function saveTasks(inputValue) {
     const user = auth.currentUser.uid;
     let taskValue = null;
 
@@ -36,28 +47,24 @@ function saveTodo(inputValue) {
     }
 
     db.collection('tasks').doc(user).set({
-        arr: firebase.firestore.FieldValue.arrayUnion({ taskTitle: taskValue, status: '', id: generateRandonId(10) }),
+        arr: firebase.firestore.FieldValue.arrayUnion({ taskTitle: taskValue, status: ''}),
     }, { merge: true }
     ).then(() => {
         //Success
     }).catch(error => {
         console.log(error.message);
     })
-
-    createTasks(taskValue);
 }
 
-function generateRandonId(tamanho) {
-    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-    let id = '';
-    for (let i = 0; i < tamanho; i++) {
-        const indiceAleatorio = Math.floor(Math.random() * caracteres.length);
-        id += caracteres.charAt(indiceAleatorio);
+function addTasksToScreen(inputValue) {
+    let taskValue = null;
+
+    if (typeof inputValue == 'object') {
+        taskValue = inputValue.taskTitle;
+    } else {
+        taskValue = inputValue;
     }
-    return id;
-}
 
-function createTasks(taskValue) {
     const task = document.createElement('div');
     task.classList.add('task');
 
@@ -69,14 +76,6 @@ function createTasks(taskValue) {
     checkBtn.id = 'done';
     checkBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
     task.appendChild(checkBtn);
-    checkBtn.addEventListener('click', (e) => {
-        let targetEl = e.target;
-        let parentEl = targetEl.closest('div');
-        checkStatus(parentEl);
-
-        // parentEl.classList.toggle('done');
-
-    })
 
     const editBtn = document.createElement('button');
     editBtn.id = 'edit';
@@ -97,7 +96,7 @@ todoForm.addEventListener('submit', (e) => {
     const inputValue = todoInput.value;
 
     if (inputValue) {
-        saveTodo(inputValue);
+        saveTasks(inputValue);
     } else {
         alert('Preencha os campos abaixo e tente novamente');
     }
@@ -112,9 +111,9 @@ document.addEventListener('click', (e) => {
     const parentEl = targetEl.closest('div');
     let taskTitle;
 
-    // if (targetEl.id == 'done') {
-    //     parentEl.classList.toggle('done');
-    // }
+    if (targetEl.id == 'done') {
+        parentEl.classList.toggle('done');
+    }
 
     if (targetEl.id == 'remove') {
         parentEl.remove();
