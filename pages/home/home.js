@@ -31,11 +31,24 @@ function getAllTasks() {
         })
 }
 
+function generateRandomId() {
+    const caracteres = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let id = '';
+
+    for (let i = 0; i < 10; i++) {
+        const randomIndex = Math.floor(Math.random() * caracteres.length);
+        id += caracteres.charAt(randomIndex);
+    }
+
+    return id;
+}
+
+
 function saveTasks(inputValue) {
     const user = auth.currentUser.uid;
 
     db.collection('tasks').doc(user).set({
-        arr: firebase.firestore.FieldValue.arrayUnion({ taskTitle: inputValue, status: '' }),
+        arr: firebase.firestore.FieldValue.arrayUnion({ taskTitle: inputValue, status: '', id: generateRandomId() }),
     }, { merge: true }
     ).then(() => {
         //Success
@@ -49,6 +62,8 @@ function addTasksToScreen(arr) {
 
         const task = document.createElement('div');
         task.classList.add('task');
+        task.classList.add(taskValue.status)
+        task.id = taskValue.id;
 
         const todoTitle = document.createElement('h3');
         todoTitle.innerHTML = taskValue.taskTitle;
@@ -88,6 +103,9 @@ todoForm.addEventListener('submit', (e) => {
     todoInput.focus();
 });
 
+
+
+
 document.addEventListener('click', (e) => {
 
     const targetEl = e.target;
@@ -96,6 +114,16 @@ document.addEventListener('click', (e) => {
 
     if (targetEl.id == 'done') {
         parentEl.classList.toggle('done');
+
+        let id = parentEl.id
+        console.log(id);
+
+        db.collection('tasks').where('id', '==', id).get()
+        .then((snapshot) => {
+            snapshot.forEach((doc) => {
+                console.log(doc);
+            })
+        })
     }
 
     if (targetEl.id == 'remove') {
