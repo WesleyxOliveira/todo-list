@@ -6,40 +6,36 @@ let todoContainer = document.querySelector('.todo-container');
 let editContainer = document.querySelector('.edit-container');
 let editInput = document.querySelector('#edit-input');
 let updateTask = document.querySelector('#update-task');
-let allTasksOnScreen = document.querySelectorAll('.task');
 
-// auth.onAuthStateChanged((user) => {
-//     if (user) {
-//     getAllTasks();
-//     }
-// })
+function clearScreen() {
+    let allTasksOnScreen = document.querySelectorAll('.task');
 
+    allTasksOnScreen.forEach(taskOnscreen => {
+        taskOnscreen.remove();
+    })
+}
+
+db.collection('tasks').onSnapshot(() => {
+    getAllTasks();
+});
 
 function getAllTasks() {
-    let user = auth.currentUser.uid;     
-    
+    clearScreen();
+    let user = auth.currentUser.uid;
+
     db.collection('tasks').doc(user).get()
         .then(doc => {
             let arr = doc.data().arr;
 
-            arr.forEach(element => {
-                addTasksToScreen(element, user);
-            });
+            addTasksToScreen(arr);
         })
 }
 
 function saveTasks(inputValue) {
     const user = auth.currentUser.uid;
-    let taskValue = null;
-
-    if (typeof inputValue == 'object') {
-        taskValue = inputValue.taskTitle;
-    } else {
-        taskValue = inputValue;
-    }
 
     db.collection('tasks').doc(user).set({
-        arr: firebase.firestore.FieldValue.arrayUnion({ taskTitle: taskValue, status: ''}),
+        arr: firebase.firestore.FieldValue.arrayUnion({ taskTitle: inputValue, status: '' }),
     }, { merge: true }
     ).then(() => {
         //Success
@@ -48,38 +44,33 @@ function saveTasks(inputValue) {
     })
 }
 
-function addTasksToScreen(inputValue, user) {
-    let taskValue = null;
+function addTasksToScreen(arr) {
+    arr.forEach(taskValue => {
 
-    if (typeof inputValue == 'object') {
-        taskValue = inputValue.taskTitle;
-    } else {
-        taskValue = inputValue;
-    }
+        const task = document.createElement('div');
+        task.classList.add('task');
 
-    const task = document.createElement('div');
-    task.classList.add('task');
+        const todoTitle = document.createElement('h3');
+        todoTitle.innerHTML = taskValue.taskTitle;
+        task.appendChild(todoTitle);
 
-    const todoTitle = document.createElement('h3');
-    todoTitle.innerHTML = taskValue;
-    task.appendChild(todoTitle);
+        const checkBtn = document.createElement('button');
+        checkBtn.id = 'done';
+        checkBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
+        task.appendChild(checkBtn);
 
-    const checkBtn = document.createElement('button');
-    checkBtn.id = 'done';
-    checkBtn.innerHTML = '<i class="fa-solid fa-check"></i>';
-    task.appendChild(checkBtn);
+        const editBtn = document.createElement('button');
+        editBtn.id = 'edit';
+        editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
+        task.appendChild(editBtn);
 
-    const editBtn = document.createElement('button');
-    editBtn.id = 'edit';
-    editBtn.innerHTML = '<i class="fa-solid fa-pen"></i>';
-    task.appendChild(editBtn);
+        const removeBtn = document.createElement('button');
+        removeBtn.id = 'remove';
+        removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
+        task.appendChild(removeBtn);
 
-    const removeBtn = document.createElement('button');
-    removeBtn.id = 'remove';
-    removeBtn.innerHTML = '<i class="fa-solid fa-xmark"></i>';
-    task.appendChild(removeBtn);
-
-    tasksContainer.appendChild(task)
+        tasksContainer.appendChild(task)
+    })
 }
 
 todoForm.addEventListener('submit', (e) => {
@@ -92,8 +83,6 @@ todoForm.addEventListener('submit', (e) => {
     } else {
         alert('Preencha os campos abaixo e tente novamente');
     }
-
-    getAllTasks();
 
     todoInput.value = '';
     todoInput.focus();
