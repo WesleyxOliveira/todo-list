@@ -6,6 +6,7 @@ let todoContainer = document.querySelector('.todo-container');
 let editContainer = document.querySelector('.edit-container');
 let editInput = document.querySelector('#edit-input');
 let updateTask = document.querySelector('#update-task');
+var user = null;
 
 function clearScreen() {
     let allTasksOnScreen = document.querySelectorAll('.task');
@@ -21,7 +22,7 @@ db.collection('tasks').onSnapshot(() => {
 
 function getAllTasks() {
     clearScreen();
-    let user = auth.currentUser.uid;
+    user = auth.currentUser.uid;
 
     db.collection('tasks').doc(user).get()
         .then(doc => {
@@ -62,8 +63,10 @@ function addTasksToScreen(arr) {
 
         const task = document.createElement('div');
         task.classList.add('task');
-        task.classList.add(taskValue.status)
         task.id = taskValue.id;
+        if (taskValue.status) {
+            task.classList.add(taskValue.status);
+        }
 
         const todoTitle = document.createElement('h3');
         todoTitle.innerHTML = taskValue.taskTitle;
@@ -103,9 +106,6 @@ todoForm.addEventListener('submit', (e) => {
     todoInput.focus();
 });
 
-
-
-
 document.addEventListener('click', (e) => {
 
     const targetEl = e.target;
@@ -115,15 +115,18 @@ document.addEventListener('click', (e) => {
     if (targetEl.id == 'done') {
         parentEl.classList.toggle('done');
 
-        let id = parentEl.id
-        console.log(id);
+        let taskId = parentEl.id
 
-        db.collection('tasks').where('id', '==', id).get()
-        .then((snapshot) => {
-            snapshot.forEach((doc) => {
-                console.log(doc);
+        db.collection('tasks').doc(user).get()
+            .then((snapshot) => {
+                let tasksList = snapshot.data().arr
+                
+                tasksList.forEach(element => {
+                    if(element.id == taskId) {
+                        //Parei aqui
+                    }
+                })
             })
-        })
     }
 
     if (targetEl.id == 'remove') {
