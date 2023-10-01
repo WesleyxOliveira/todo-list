@@ -106,6 +106,7 @@ todoForm.addEventListener('submit', (e) => {
     todoInput.focus();
 });
 
+
 document.addEventListener('click', (e) => {
 
     const targetEl = e.target;
@@ -115,18 +116,15 @@ document.addEventListener('click', (e) => {
     if (targetEl.id == 'done') {
         parentEl.classList.toggle('done');
 
-        let taskId = parentEl.id
+        //Chat gpt a partir daqui
+        const documentRef = db.collection('tasks').doc(user);
 
-        db.collection('tasks').doc(user).get()
-            .then((snapshot) => {
-                let tasksList = snapshot.data().arr
-                
-                tasksList.forEach(element => {
-                    if(element.id == taskId) {
-                        //Parei aqui
-                    }
-                })
-            })
+        const idToUpdate = parentEl.id;
+        const newStatus = 'done';
+
+        console.log(documentRef.arr);
+
+
     }
 
     if (targetEl.id == 'remove') {
