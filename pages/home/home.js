@@ -106,6 +106,22 @@ todoForm.addEventListener('submit', (e) => {
     todoInput.focus();
 });
 
+function checkStatus(snapshot, parentElId) {
+    let arr = snapshot.arr;
+
+    arr.forEach(element => {
+        if(element.id == parentElId) {
+            if(element.status == 'done') {
+                element.status = '';
+            } else {
+                element.status = 'done';
+            }
+        }
+    })
+
+    return snapshot;
+}
+
 
 document.addEventListener('click', (e) => {
 
@@ -116,15 +132,13 @@ document.addEventListener('click', (e) => {
     if (targetEl.id == 'done') {
         parentEl.classList.toggle('done');
 
-        //Chat gpt a partir daqui
-        const documentRef = db.collection('tasks').doc(user);
+        db.collection('tasks').doc(user).get()
+        .then((snapshot) => {
+            let doc = checkStatus(snapshot.data(), parentEl.id);
 
-        const idToUpdate = parentEl.id;
-        const newStatus = 'done';
-
-        console.log(documentRef.arr);
-
-
+            db.collection('tasks').doc(user).update(doc);
+            
+        })
     }
 
     if (targetEl.id == 'remove') {
