@@ -122,7 +122,6 @@ function checkStatus(snapshot, parentElId) {
     return snapshot;
 }
 
-
 document.addEventListener('click', (e) => {
 
     const targetEl = e.target;
@@ -141,7 +140,28 @@ document.addEventListener('click', (e) => {
         })
     }
 
+    function deleteTaskOnDb(snapshot, parentElId) {
+        for(let i = 0; i < snapshot.arr.length; i++) {
+            if(snapshot.arr[i].id == parentEl.id) {
+                snapshot.arr.splice(i, 1);
+            }
+        }
+        return snapshot;
+    }
+
     if (targetEl.id == 'remove') {
+        db.collection('tasks').doc(user).get() 
+        .then((snapshot) => {
+            let deletedTask = deleteTaskOnDb(snapshot.data(), parentEl.id)
+
+            db.collection('tasks').doc(user).update(deletedTask)
+            .then(() => {
+                console.log('Deletado com sucesso!');
+            })
+            .catch(error => {
+                console.log(error);
+            })
+        })
         parentEl.remove();
     }
 
@@ -153,14 +173,38 @@ document.addEventListener('click', (e) => {
             todoContainer.style.display = 'none';
 
             editContainer.style.display = 'block';
+
             editInput.value = taskTitle;
             editInput.focus();
         }
 
         currentTask = parentEl;
 
+        function updateTaskDb(snapshot, currentTask, editInput) {
+            snapshot.arr.forEach(element => {
+                if(element.id == currentTask.id) {
+                    element.taskTitle = editInput.value;
+                }
+            })
+
+            return snapshot;
+        }
+
         updateTask.addEventListener('click', (e) => {
             e.preventDefault();
+
+            db.collection('tasks').doc(user).get()
+            .then(snapshot => {
+                let updatedTask = updateTaskDb(snapshot.data(), currentTask, editInput);
+
+                db.collection('tasks').doc(user).update(updatedTask)
+                .then(() => {
+                    console.log('Tarefa atualizado com sucesso!');
+                })
+                .catch(error => {
+                    console.log(`${error}: ${error.message}`);
+                })
+            })
 
             currentTask.querySelector('h3').innerText = editInput.value;
 
