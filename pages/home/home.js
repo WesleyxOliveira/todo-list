@@ -106,43 +106,63 @@ todoForm.addEventListener('submit', (e) => {
     todoInput.focus();
 });
 
-function checkStatus(snapshot, parentElId) {
-    let arr = snapshot.arr;
-
-    arr.forEach(element => {
-        if(element.id == parentElId) {
-            if(element.status == 'done') {
-                element.status = '';
-            } else {
-                element.status = 'done';
-            }
-        }
-    })
-
-    return snapshot;
-}
-
+//Ações dos botões done, edit e delete
 document.addEventListener('click', (e) => {
 
     const targetEl = e.target;
     const parentEl = targetEl.closest('div');
     let taskTitle;
 
+    function checkStatus(snapshot) {
+        let arr = snapshot.arr;
+
+        arr.forEach(element => {
+            if (element.id == parentEl.id) {
+                if (element.status == 'done') {
+                    element.status = '';
+                } else {
+                    element.status = 'done';
+                }
+            }
+        })        
+        updateDb(snapshot);
+    }
+
+    // Pegando o objeto no db para atualizar o status
+    function getStatusDb() {
+        db.collection('tasks').doc(user).get()
+            .then((snapshot) => {
+                checkStatus(snapshot.data());
+            })
+            .catch((error) => {
+                console.log(`${error}: ${error.message}`);
+            })
+    }
+
+    //Atualizando o objeto da tarefa no db
+    function updateDb(doc) {
+        db.collection('tasks').doc(user).update(doc)
+            .then(() => {
+                console.log('Tarefa atualizada com sucesso!');
+            })
+            .catch((error) => {
+                console.log(`${error}: ${error.message}`);
+            })
+    }
+
     if (targetEl.id == 'done') {
         parentEl.classList.toggle('done');
 
-        db.collection('tasks').doc(user).get()
-        .then((snapshot) => {
-            let doc = checkStatus(snapshot.data(), parentEl.id);
+        getStatusDb();
+        
+        // let doc = checkStatus(getTasks(), parentEl.id);
 
-            db.collection('tasks').doc(user).update(doc);
-            
-        })
+        // updateDb(doc);
     }
 
     function deleteTaskOnDb(snapshot, parentElId) {
-        for(let i = 0; i < snapshot.arr.length; i++) {
-            if(snapshot.arr[i].id == parentEl.id) {
+        for (let i = 0; i < snapshot.arr.length; i++) {
+            if (snapshot.arr[i].id == parentEl.id) {
                 snapshot.arr.splice(i, 1);
             }
         }
@@ -150,18 +170,18 @@ document.addEventListener('click', (e) => {
     }
 
     if (targetEl.id == 'remove') {
-        db.collection('tasks').doc(user).get() 
-        .then((snapshot) => {
-            let deletedTask = deleteTaskOnDb(snapshot.data(), parentEl.id)
+        db.collection('tasks').doc(user).get()
+            .then((snapshot) => {
+                let deletedTask = deleteTaskOnDb(snapshot.data(), parentEl.id)
 
-            db.collection('tasks').doc(user).update(deletedTask)
-            .then(() => {
-                console.log('Deletado com sucesso!');
+                db.collection('tasks').doc(user).update(deletedTask)
+                    .then(() => {
+                        console.log('Deletado com sucesso!');
+                    })
+                    .catch(error => {
+                        console.log(error);
+                    })
             })
-            .catch(error => {
-                console.log(error);
-            })
-        })
         parentEl.remove();
     }
 
@@ -182,7 +202,7 @@ document.addEventListener('click', (e) => {
 
         function updateTaskDb(snapshot, currentTask, editInput) {
             snapshot.arr.forEach(element => {
-                if(element.id == currentTask.id) {
+                if (element.id == currentTask.id) {
                     element.taskTitle = editInput.value;
                 }
             })
@@ -194,17 +214,17 @@ document.addEventListener('click', (e) => {
             e.preventDefault();
 
             db.collection('tasks').doc(user).get()
-            .then(snapshot => {
-                let updatedTask = updateTaskDb(snapshot.data(), currentTask, editInput);
+                .then(snapshot => {
+                    let updatedTask = updateTaskDb(snapshot.data(), currentTask, editInput);
 
-                db.collection('tasks').doc(user).update(updatedTask)
-                .then(() => {
-                    console.log('Tarefa atualizado com sucesso!');
+                    db.collection('tasks').doc(user).update(updatedTask)
+                        .then(() => {
+                            console.log('Tarefa atualizado com sucesso!');
+                        })
+                        .catch(error => {
+                            console.log(`${error}: ${error.message}`);
+                        })
                 })
-                .catch(error => {
-                    console.log(`${error}: ${error.message}`);
-                })
-            })
 
             currentTask.querySelector('h3').innerText = editInput.value;
 
